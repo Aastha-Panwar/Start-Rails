@@ -1,0 +1,179 @@
+Models
+In Ruby on Rails, a model represents the data and the rules for accessing and manipulating that data. Models are responsible for handling the interactions with the database and implementing business logic. Each model class corresponds to a database table and is a subclass of ActiveRecord::Base.
+
+Example Implementation:
+Let's create a simple Rails application with a model called User that represents users in a system.
+
+Generate the User model:
+
+Open your terminal and navigate to your Rails application's directory, then run the following command:
+
+$rails generate model User name:string email:string
+
+This command generates a migration to create a users table with name and email columns and a corresponding User model.
+
+Run the migration:
+
+Run the migration to create the database table:
+
+$rails db:migrate
+
+Interact with the User model:
+
+Open the Rails console:
+
+$rails console
+
+Now you can create, retrieve, update, and delete users using the User model:
+
+cmd-
+# Create a new user
+user = User.create(name: "John Doe", email: "john@example.com")
+
+# Find a user by their name
+user = User.find_by(name: "John Doe")
+
+# Update user's email
+user.update(email: "john.doe@example.com")
+
+# Delete the user
+user.destroy
+
+
+Active Record Basics:
+Active Record is Rails' implementation of the Object-Relational Mapping (ORM) pattern. It provides an abstraction layer that allows you to interact with your database using Ruby objects. Active Record models correspond to database tables, and instances of these models represent rows in those tables.
+
+Key Concepts:
+
+Model Definition: Define a model by subclassing ActiveRecord::Base.
+Attribute Accessors: Model attributes correspond to table columns.
+CRUD Operations: Create, Read, Update, Delete records using methods like create, find, update, and destroy.
+Database Agnostic: Rails abstracts away database-specific SQL syntax.
+
+Suppose we're building a blog application, and we want to create a model for Article.
+
+bash
+Copy code
+# app/models/article.rb
+class Article < ApplicationRecord
+end
+Now you can use this model to interact with the articles table in the database.
+
+
+
+Active Record Migrations:
+Migrations are a way to evolve your database schema over time. They are Ruby classes that define changes to your database structure. Migrations enable version control for your database schema and help keep it in sync with your application code.
+
+Key Concepts:
+
+Generate Migrations: Use rails generate migration to create new migrations.
+Define Changes: Define changes in the change method using migration DSL.
+Run Migrations: Use rake db:migrate to apply pending migrations.
+Rollback: Use rake db:rollback to undo the last migration.
+
+Let's say we need to add a published boolean column to the articles table.
+
+bash
+Copy code
+rails generate migration AddPublishedToArticles published:boolean
+ruby
+Copy code
+# db/migrate/xxxxxx_add_published_to_articles.rb
+class AddPublishedToArticles < ActiveRecord::Migration[6.0]
+  def change
+    add_column :articles, :published, :boolean
+  end
+end
+After running the migration, the articles table will have a published column.
+
+
+
+Active Record Validations:
+Validations ensure that only valid data is saved to the database. They provide a way to enforce business rules and maintain data integrity.
+
+Key Concepts:
+
+Validation Methods: Use methods like validates_presence_of, validates_uniqueness_of, and more.
+Custom Validations: Define custom validation methods in your model.
+Error Handling: Access validation errors using the errors object.
+
+We want to ensure that articles have a title and content before being saved.
+
+ruby
+Copy code
+class Article < ApplicationRecord
+  validates :title, presence: true
+  validates :content, presence: true
+end
+Now, trying to save an article without a title or content will result in a validation error.
+
+
+
+Active Record Callbacks:
+Callbacks are methods that get called at certain points in an object's lifecycle, such as before or after saving, updating, or deleting.
+
+Key Concepts:
+
+Available Callbacks: Examples include before_save, after_create, before_validation, etc.
+Use Cases: Implement business logic, manipulate data before saving, or perform side effects.
+Avoid Callback Hell: Be cautious not to overuse callbacks, as they can make code harder to maintain.
+
+Let's implement a callback that sets the published attribute to true before an article is saved.
+
+ruby
+Copy code
+class Article < ApplicationRecord
+  before_save :set_published
+
+  private
+
+  def set_published
+    self.published = true
+  end
+end
+Now, every time an article is saved, the set_published method will be called.
+
+
+
+Active Record Associations:
+Associations define relationships between models. They enable you to express the connections between different pieces of data in your application.
+
+Key Concepts:
+
+Types of Associations: belongs_to, has_many, has_one, has_and_belongs_to_many.
+Foreign Keys: Associations often use foreign keys in the database.
+Inverse Associations: Use inverse_of to ensure bidirectional associations work correctly.
+
+We'll create associations between Article and Author models.
+
+ruby
+Copy code
+class Author < ApplicationRecord
+  has_many :articles
+end
+
+class Article < ApplicationRecord
+  belongs_to :author
+end
+With these associations, an author can have many articles, and each article belongs to an author.
+
+
+
+Active Record Query Interface:
+The Query Interface provides a powerful and chainable way to build complex database queries using Ruby methods.
+
+Key Concepts:
+
+Chaining Methods: Chain query methods like where, order, joins, etc.
+Lazy Loading: Queries are not executed until the result is needed.
+Eager Loading: Use includes or eager_load to load associated records efficiently.
+Scopes: Define reusable query scopes in your model.
+
+We want to retrieve all published articles by a specific author.
+
+ruby
+Copy code
+author = Author.find_by(name: 'John Doe')
+published_articles = author.articles.where(published: true)
+In this example, we use the Query Interface to chain methods and retrieve the desired articles.
+
